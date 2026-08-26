@@ -77,7 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
     chatForm?.addEventListener('submit', () => {
         if (!messageInput.value.trim()) return;
         thinking.hidden = false;
-        messageInput.disabled = true;
+        messageInput.readOnly = true;
+        messageInput.setAttribute('aria-disabled', 'true');
         sendButton.disabled = true;
     });
     document.querySelectorAll('[data-copy-message]').forEach((button) => button.addEventListener('click', async () => {
