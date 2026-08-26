@@ -6,6 +6,14 @@ from .models import Conversation, Message
 
 
 @login_required
+def chat_index(request):
+    conversation = Conversation.objects.filter(user=request.user).order_by('-updated_at', '-created_at').first()
+    if conversation is None:
+        return redirect('home')
+    return redirect('conversation', conversation_id=conversation.id)
+
+
+@login_required
 def conversation_view(request, conversation_id):
     conversation = get_object_or_404(
         Conversation.objects.select_related('report'),
