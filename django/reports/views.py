@@ -24,11 +24,14 @@ def home(request):
             )
         process_report(report)
         return redirect('conversation', conversation_id=conversation.id)
+    reports = Report.objects.filter(user=request.user)
     conversations = Conversation.objects.filter(user=request.user).select_related('report')
+    recent_report = reports.first()
     return render(request, 'home.html', {
         'form': form,
-        'reports': Report.objects.filter(user=request.user),
+        'reports': reports,
         'conversations': conversations,
+        'recent_report': recent_report,
     })
 
 

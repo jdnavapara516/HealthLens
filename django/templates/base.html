@@ -9,13 +9,11 @@
 </head>
 <body>
 <header class="site-header">
-    <a class="brand" href="{% if user.is_authenticated %}{% url 'home' %}{% else %}{% url 'login' %}{% endif %}">HealthLens <span>AI</span></a>
-    <nav>
+    <a class="brand" href="{% if user.is_authenticated %}{% url 'home' %}{% else %}{% url 'login' %}{% endif %}"><span class="brand-mark" aria-hidden="true">H</span>HealthLens <span>AI</span></a>
+    {% if user.is_authenticated %}<button class="menu-toggle" data-menu-toggle type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>{% endif %}
+    <nav data-main-nav>
         {% if user.is_authenticated %}
-            <span class="user-label">{{ user.username }}</span>
-            <form method="post" action="{% url 'logout' %}" class="inline-form">
-                {% csrf_token %}<button class="button button-quiet" type="submit">Log out</button>
-            </form>
+            <a class="nav-link active" href="{% url 'home' %}">Dashboard</a><a class="nav-link" href="#reports">Reports</a><a class="nav-link" href="#chats">Chats</a><button class="icon-button" type="button" aria-label="Notifications">!</button><details class="profile-menu"><summary><span class="avatar">{{ user.username|first|upper }}</span><span class="user-label">{{ user.username }}</span><span class="chevron">&#8964;</span></summary><div class="profile-dropdown"><span>{{ user.email|default:'HealthLens member' }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Log out</button></form></div></details>
         {% else %}
             <a href="{% url 'login' %}">Log in</a>
             <a class="button button-small" href="{% url 'signup' %}">Create account</a>
@@ -26,6 +24,7 @@
     {% if messages %}{% for message in messages %}<div class="notice">{{ message }}</div>{% endfor %}{% endif %}
     {% block content %}{% endblock %}
 </main>
+<footer>HealthLens AI provides information based on uploaded reports and is not a substitute for professional medical advice.</footer>
 <script src="{% static 'js/site.js' %}"></script>
 </body>
 </html>
