@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | HealthLens AI{% endblock %}
+{% block content %}
+<section class="dashboard-heading">
+    <div><p class="eyebrow">Your health workspace</p><h1>Welcome back, {{ user.username }}</h1><p class="muted">Keep your reports and questions together in one private space.</p></div>
+    <button class="button" data-open-upload type="button">+ Upload report</button>
+</section>
+<div class="dashboard-grid">
+    <section class="panel"><div class="panel-heading"><h2>My reports</h2><span class="count">{{ reports|length }}</span></div>
+        {% for report in reports %}<article class="list-row"><div><strong>{{ report.name }}</strong><small>Uploaded {{ report.created_at|date:'j M Y' }}</small></div><div class="row-action"><span class="status">{{ report.get_status_display }}</span><a href="{% url 'conversation' report.conversation.id %}">Open chat</a></div></article>{% empty %}<div class="empty"><strong>No reports uploaded yet.</strong><p>Upload your first health report to start a conversation.</p><button class="button button-small" data-open-upload type="button">Upload report</button></div>{% endfor %}
+    </section>
+    <section class="panel"><div class="panel-heading"><h2>Previous chats</h2><span class="count">{{ conversations|length }}</span></div>
+        {% for conversation in conversations %}<article class="list-row"><div><strong>{{ conversation.title }}</strong><small>{{ conversation.updated_at|date:'j M Y, H:i' }}</small></div><a href="{% url 'conversation' conversation.id %}">Open chat</a></article>{% empty %}<div class="empty"><strong>No conversations yet.</strong><p>Every uploaded report gets its own private chat.</p></div>{% endfor %}
+    </section>
+</div>
+<div class="modal-backdrop" data-upload-modal{% if not form.errors %} hidden{% endif %}><section class="modal" role="dialog" aria-modal="true" aria-labelledby="upload-title"><button class="modal-close" data-close-upload type="button" aria-label="Close">&times;</button><p class="eyebrow">Add a document</p><h2 id="upload-title">Upload health report</h2><form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.non_field_errors }}{% for field in form %}<label>{{ field.label }}{{ field }}{% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</label>{% endfor %}<p class="muted">PDF only, up to 10 MB.</p><div class="modal-actions"><button class="button button-quiet" data-close-upload type="button">Cancel</button><button class="button" type="submit">Upload report</button></div></form></section></div>
+{% endblock %}
