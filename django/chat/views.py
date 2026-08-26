@@ -25,4 +25,9 @@ def conversation_view(request, conversation_id):
             content='AI processing will be connected soon.',
         )
         return redirect('conversation', conversation_id=conversation.id)
-    return render(request, 'chat/chat.html', {'conversation': conversation, 'form': form})
+    conversations = Conversation.objects.filter(user=request.user).select_related('report')
+    return render(request, 'chat/chat.html', {
+        'conversation': conversation,
+        'conversations': conversations,
+        'form': form,
+    })
