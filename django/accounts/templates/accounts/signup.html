@@ -1,3 +1,56 @@
 {% extends 'base.html' %}
 {% block title %}Create account | HealthLens AI{% endblock %}
-{% block content %}<section class="auth-card"><p class="eyebrow">Private health workspace</p><h1>Create your account</h1><form method="post">{% csrf_token %}{{ form.non_field_errors }}{% for field in form %}<label>{{ field.label }}{{ field }}{% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</label>{% endfor %}<button class="button" type="submit">Create account</button></form><p class="form-footer">Already registered? <a href="{% url 'login' %}">Log in</a></p></section>{% endblock %}
+{% block content %}
+<section class="auth-shell">
+    <div class="auth-visual">
+        <div class="visual-badge">Healthcare clarity</div>
+        <h1>Build a secure place for your health records.</h1>
+        <p>Upload your reports, track your history, and start smarter conversations around your care.</p>
+        <ul class="visual-list">
+            <li>Organized medical uploads</li>
+            <li>Private patient workspace</li>
+            <li>Clear insights and follow-ups</li>
+        </ul>
+    </div>
+
+    <div class="auth-panel">
+        <div class="auth-header">
+            <span class="eyebrow">Create account</span>
+            <h2>Get started</h2>
+        </div>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="field-wrap">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {% for error in form.username.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+
+            <div class="field-wrap">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+
+            <div class="field-wrap">
+                <label for="{{ form.password1.id_for_label }}">Password</label>
+                {{ form.password1 }}
+                {% for error in form.password1.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+
+            <div class="field-wrap">
+                <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+                {{ form.password2 }}
+                {% for error in form.password2.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+            </div>
+
+            <button class="button button-primary auth-button" type="submit">Create account</button>
+        </form>
+
+        <p class="form-footer">Already registered? <a href="{% url 'login' %}">Log in</a></p>
+    </div>
+</section>
+{% endblock %}

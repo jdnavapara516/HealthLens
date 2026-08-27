@@ -58,28 +58,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendButton = document.querySelector('[data-send-button]');
     const chatForm = document.querySelector('[data-chat-form]');
     const updateInput = () => {
+        if (!messageInput) return;
         if (count) count.textContent = `${messageInput.value.length} / 4000`;
         messageInput.style.height = 'auto';
         messageInput.style.height = `${Math.min(messageInput.scrollHeight, 140)}px`;
     };
     messageInput?.addEventListener('input', updateInput);
     messageInput?.addEventListener('keydown', (event) => {
+        if (!chatForm || !messageInput) return;
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             chatForm.requestSubmit();
         }
     });
     document.querySelectorAll('[data-suggestions] button').forEach((button) => button.addEventListener('click', () => {
+        if (!messageInput) return;
         messageInput.value = button.textContent;
         updateInput();
         messageInput.focus();
     }));
     chatForm?.addEventListener('submit', () => {
-        if (!messageInput.value.trim()) return;
-        thinking.hidden = false;
+        if (!messageInput || !messageInput.value.trim()) return;
+        if (thinking) thinking.hidden = false;
         messageInput.readOnly = true;
         messageInput.setAttribute('aria-disabled', 'true');
-        sendButton.disabled = true;
+        if (sendButton) sendButton.disabled = true;
     });
     document.querySelectorAll('[data-copy-message]').forEach((button) => button.addEventListener('click', async () => {
         const text = button.closest('.message-card').querySelector('p').textContent;

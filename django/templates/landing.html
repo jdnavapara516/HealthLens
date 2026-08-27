@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}HealthLens AI | Smart health insights{% endblock %}
+{% block content %}
+<section class="landing-hero">
+    <div class="landing-copy">
+        <span class="eyebrow">Built for modern healthcare</span>
+        <h1>Turn health records into clear, actionable insight.</h1>
+        <p>HealthLens AI helps patients organize reports, track conversations, and understand medical information with a guided, privacy-first workflow.</p>
+        <div class="hero-actions">
+            <a class="button button-primary" href="{% url 'signup' %}">Get started</a>
+            <a class="button button-secondary" href="{% url 'login' %}">Log in</a>
+        </div>
+        <div class="mini-stats">
+            <div>
+                <strong>3.4k+</strong>
+                <span>Reports tracked</span>
+            </div>
+            <div>
+                <strong>92%</strong>
+                <span>Workflow clarity</span>
+            </div>
+            <div>
+                <strong>24/7</strong>
+                <span>Private access</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-card">
+        <div class="hero-card-top">
+            <span class="status-pill">Live dashboard</span>
+            <span class="status-ok">Healthy</span>
+        </div>
+        <div class="report-preview">
+            <div class="report-header">
+                <span class="report-icon">PDF</span>
+                <div>
+                    <strong>Annual Checkup</strong>
+                    <small>Updated 2 hours ago</small>
+                </div>
+            </div>
+            <div class="report-metrics">
+                <div>
+                    <span>Heart</span>
+                    <strong>88 bpm</strong>
+                </div>
+                <div>
+                    <span>BP</span>
+                    <strong>118/76</strong>
+                </div>
+                <div>
+                    <span>Risk</span>
+                    <strong>Low</strong>
+                </div>
+            </div>
+        </div>
+        <div class="chat-preview">
+            <div class="bubble user">Can you summarize the report?</div>
+            <div class="bubble assistant">Your vitals are stable and your ECG trend is improving.</div>
+        </div>
+    </div>
+</section>
+
+<section class="landing-features">
+    <div class="section-heading">
+        <span class="eyebrow">Why HealthLens</span>
+        <h2>Everything needed for health planning, in one place.</h2>
+    </div>
+
+    <div class="feature-grid">
+        <article class="feature-card">
+            <div class="feature-icon">01</div>
+            <h3>Upload reports</h3>
+            <p>Store PDFs and medical documents in a patient-first workspace built for clarity.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon">02</div>
+            <h3>Review insights</h3>
+            <p>Follow conversations around each record and track the latest health summary.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon">03</div>
+            <h3>Stay informed</h3>
+            <p>Keep context across reports, messages, and patient history without losing momentum.</p>
+        </article>
+    </div>
+</section>
+
+<section class="landing-showcase">
+    <div class="showcase-copy">
+        <span class="eyebrow">Your private workflow</span>
+        <h2>From upload to medical clarity.</h2>
+        <p>HealthLens helps turn raw documents into a guided experience: upload, ask questions, review summaries, and continue the conversation with your latest report.</p>
+        <ul>
+            <li>Secure personal workspace</li>
+            <li>Organized conversations by report</li>
+            <li>Clear dashboard for recent activity</li>
+        </ul>
+    </div>
+
+    <div class="showcase-panel">
+        <div class="panel-row">
+            <span class="panel-label">Reports</span>
+            <strong>12 active</strong>
+        </div>
+        <div class="panel-row">
+            <span class="panel-label">Conversations</span>
+            <strong>8 ongoing</strong>
+        </div>
+        <div class="panel-row">
+            <span class="panel-label">Last summary</span>
+            <strong>Stable vitals</strong>
+        </div>
+        <div class="progress-card">
+            <div class="progress-head">
+                <span>Care tracking</span>
+                <strong>75%</strong>
+            </div>
+            <div class="progress-bar"><span></span></div>
+        </div>
+    </div>
+</section>
+{% endblock %}
