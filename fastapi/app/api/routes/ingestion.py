@@ -99,6 +99,13 @@ def process_report(
     except HTTPException:
         raise
 
+    except RuntimeError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=503,
+            detail=str(exc),
+        ) from exc
+
     except Exception as e:
         db.rollback()
 

@@ -56,3 +56,23 @@ class VectorStoreService:
         )
 
         return list(self.db.scalars(statement).all())
+
+    def search_similar(
+        self,
+        user_id: int,
+        report_id: int,
+        query_embedding: list[float],
+        limit: int = 5,
+    ) -> list[tuple[DocumentChunk, float]]:
+        distance = DocumentChunk.embedding.cosine_distance(query_embedding).label('distance')
+        statement = (
+            select(DocumentChunk, distance)
+            .where(
+                DocumentChunk.user_id == user_id,
+                DocumentChunk.report_id == report_id,
+                DocumentChunk.embedding.is_not(None),
+            )
+            .order_by(distance)
+            .limit(limit)
+        )
+        return list(self.db.execute(statement).all())

@@ -19,6 +19,9 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR.parent / '.env')
 
+FASTAPI_URL = os.getenv('FASTAPI_URL', 'http://127.0.0.1:8000').rstrip('/')
+FASTAPI_AI_URL = FASTAPI_URL
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
@@ -74,7 +77,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
+FASTAPI_URL = os.getenv('FASTAPI_URL', 'http://127.0.0.1:8000')
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases

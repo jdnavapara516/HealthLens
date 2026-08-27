@@ -1,5 +1,4 @@
 from huggingface_hub import InferenceClient
-
 from app.core.config import settings
 
 
@@ -10,7 +9,7 @@ class EmbeddingService:
             api_key=settings.hf_token,
         )
 
-        self.model = "BAAI/bge-base-en-v1.5"
+        self.model = settings.embedding_model or 'BAAI/bge-base-en-v1.5'
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         embeddings = self.client.feature_extraction(
