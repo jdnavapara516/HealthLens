@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const messageInput = document.querySelector('[data-message-input]');
+    const messageArea = document.querySelector('[data-message-area]');
     const count = document.querySelector('[data-character-count]');
     const thinking = document.querySelector('[data-thinking-state]');
     const sendButton = document.querySelector('[data-send-button]');
@@ -90,4 +91,16 @@ document.addEventListener('DOMContentLoaded', () => {
         button.textContent = 'Copied';
     }));
     updateInput();
+    if (messageArea) {
+        history.scrollRestoration = 'manual';
+        const scrollToLatestMessage = () => {
+            messageArea.scrollTop = messageArea.scrollHeight;
+            const messages = messageArea.querySelectorAll('.chat-message');
+            messages[messages.length - 1]?.scrollIntoView({ block: 'end' });
+            messageArea.scrollTop = messageArea.scrollHeight;
+        };
+        window.addEventListener('load', scrollToLatestMessage, { once: true });
+        requestAnimationFrame(() => requestAnimationFrame(scrollToLatestMessage));
+        window.setTimeout(scrollToLatestMessage, 150);
+    }
 });

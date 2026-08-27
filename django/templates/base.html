@@ -10,10 +10,10 @@
 <body>
 <header class="site-header">
     <a class="brand" href="{% if user.is_authenticated %}{% url 'home' %}{% else %}{% url 'landing' %}{% endif %}"><span class="brand-mark" aria-hidden="true">H</span>HealthLens <span>AI</span></a>
-    {% if user.is_authenticated %}<button class="menu-toggle" data-menu-toggle type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>{% endif %}
+    {% if user.is_authenticated %}{% endif %}
     <nav data-main-nav>
         {% if user.is_authenticated %}
-            <a class="nav-link active" href="{% url 'home' %}">Dashboard</a><a class="nav-link" href="#reports">Reports</a><a class="nav-link" href="{% url 'chat_index' %}">Chats</a><button class="icon-button" type="button" aria-label="Notifications">!</button><details class="profile-menu"><summary><span class="avatar">{{ user.username|first|upper }}</span><span class="user-label">{{ user.username }}</span><span class="chevron"></span></summary><div class="profile-dropdown"><span>{{ user.email|default:'HealthLens member' }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Log out</button></form></div></details>
+            <a class="nav-link active" href="{% url 'home' %}">Dashboard</a><a class="nav-link" href="#reports">Reports</a><a class="nav-link" href="{% url 'chat_index' %}">Chats</a><details class="profile-menu"><summary><span class="avatar">{{ user.username|first|upper }}</span><span class="user-label">{{ user.username }}</span><span class="chevron"></span></summary><div class="profile-dropdown"><span>{{ user.email|default:'HealthLens member' }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Log out</button></form></div></details>
         {% else %}
             <a class="nav-link" href="{% url 'landing' %}">Home</a>
             <a class="nav-link" href="{% url 'login' %}">Log in</a>
