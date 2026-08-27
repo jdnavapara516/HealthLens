@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
@@ -6,7 +7,7 @@ from chat.models import Conversation
 
 from .forms import ReportUploadForm
 from .models import Report
-from .services import process_report
+from .services import ReportProcessingError, process_report
 
 
 @login_required
@@ -22,7 +23,16 @@ def home(request):
                 report=report,
                 title=f'Chat about {report.name}',
             )
-        process_report(report)
+        try:
+            result = process_report(report)
+        except ReportProcessingError as exc:
+            messages.error(request, f'We could not process that report: {exc}')
+            return redirect('home')
+
+        if result.get('status') != 'completed':
+            messages.error(request, 'We could not finish processing that report.')
+            return redirect('home')
+
         return redirect('conversation', conversation_id=conversation.id)
     reports = Report.objects.filter(user=request.user)
     conversations = Conversation.objects.filter(user=request.user).select_related('report')

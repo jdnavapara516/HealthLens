@@ -21,24 +21,30 @@ class ReportChatFlowTests(TestCase):
             'file': SimpleUploadedFile('blood.pdf', b'%PDF-1.7 test', content_type='application/pdf'),
         })
 
-    @patch('reports.services.time.sleep')
-    def test_upload_creates_owned_report_and_conversation(self, sleep):
+    @patch('reports.services.requests.post')
+    def test_upload_creates_owned_report_and_conversation(self, post):
+        post.return_value.json.return_value = {'status': 'completed'}
+        post.return_value.raise_for_status.return_value = None
         response = self.upload()
         conversation = Conversation.objects.get(user=self.user)
         self.assertRedirects(response, reverse('conversation', args=[conversation.id]))
         self.assertEqual(conversation.report.name, 'Blood test')
         self.assertEqual(conversation.report.status, Report.Status.COMPLETED)
 
-    @patch('reports.services.time.sleep')
-    def test_chat_stores_user_and_placeholder_messages(self, sleep):
+    @patch('reports.services.requests.post')
+    def test_chat_stores_user_and_placeholder_messages(self, post):
+        post.return_value.json.return_value = {'status': 'completed'}
+        post.return_value.raise_for_status.return_value = None
         self.upload()
         conversation = Conversation.objects.get(user=self.user)
         response = self.client.post(reverse('conversation', args=[conversation.id]), {'content': 'What is next?'})
         self.assertRedirects(response, reverse('conversation', args=[conversation.id]))
         self.assertEqual(Message.objects.filter(conversation=conversation).count(), 2)
 
-    @patch('reports.services.time.sleep')
-    def test_other_user_cannot_access_conversation(self, sleep):
+    @patch('reports.services.requests.post')
+    def test_other_user_cannot_access_conversation(self, post):
+        post.return_value.json.return_value = {'status': 'completed'}
+        post.return_value.raise_for_status.return_value = None
         self.upload('Private report')
         conversation = Conversation.objects.get(user=self.user)
         self.client.force_login(self.other_user)
