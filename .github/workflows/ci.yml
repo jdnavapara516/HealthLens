@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Django dependencies
+        run: python -m pip install -r django/requirements.txt
+
+      - name: Run Django checks and tests
+        working-directory: django
+        env:
+          SECRET_KEY: ci-only-secret
+          DEBUG: 'False'
+        run: |
+          python manage.py check
+          python manage.py test
+
+      - name: Compile FastAPI source
+        run: python -m compileall -q fastapi/app
+
+      - name: Validate Compose configuration
+        run: docker compose --env-file .env.example config --quiet
+
+  images:
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push images
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          REGISTRY="${{ secrets.DOCKERHUB_USERNAME }}"
+          docker build -f Dockerfile.django -t "$REGISTRY/healthlens-django:$IMAGE_TAG" .
+          docker build -f Dockerfile.fastapi -t "$REGISTRY/healthlens-fastapi:$IMAGE_TAG" .
+          docker push "$REGISTRY/healthlens-django:$IMAGE_TAG"
+          docker push "$REGISTRY/healthlens-fastapi:$IMAGE_TAG"
