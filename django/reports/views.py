@@ -49,3 +49,23 @@ def home(request):
 def report_detail(request, report_id):
     report = get_object_or_404(Report, id=report_id, user=request.user)
     return render(request, 'reports/detail.html', {'report': report})
+
+
+@login_required
+def reports_index(request):
+    reports = Report.objects.filter(user=request.user).select_related('conversation')
+    return render(request, 'reports/index.html', {'reports': reports})
+
+
+@login_required
+def delete_report(request, report_id):
+    if request.method != 'POST':
+        return redirect('report_detail', report_id=report_id)
+
+    report = get_object_or_404(Report, id=report_id, user=request.user)
+    file_field = report.file
+    report.delete()
+    if file_field:
+        file_field.delete(save=False)
+    messages.success(request, 'Report deleted successfully.')
+    return redirect('reports_index')

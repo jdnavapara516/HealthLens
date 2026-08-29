@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Reports | HealthLens AI{% endblock %}
+{% block content %}
+<section class="page-heading">
+    <div>
+        <p class="eyebrow">Personal health library</p>
+        <h1>Your reports</h1>
+        <p class="muted">Keep your health documents organized and ready for review.</p>
+    </div>
+    <a class="button button-primary" href="{% url 'home' %}#upload"><span aria-hidden="true">+</span> Upload report</a>
+</section>
+
+<section class="reports-library">
+    <div class="library-heading"><div><p class="eyebrow">Document library</p><h2>All reports</h2></div><span class="library-count">{{ reports|length }} report{{ reports|length|pluralize }}</span></div>
+    <div class="report-card-grid">
+    {% for report in reports %}
+        <article class="report-card">
+            <div class="report-card-top"><div class="file-icon file-icon-large" aria-hidden="true"><span>PDF</span></div><span class="status status-{{ report.status|lower }}">{{ report.get_status_display }}</span></div>
+            <div class="report-card-content"><p class="report-label">Health document</p><h3>{{ report.name }}</h3><p class="report-date">Uploaded {{ report.created_at|date:'j M Y, H:i' }}</p></div>
+            <div class="report-card-meta"><span>{% if report.file_size %}{{ report.file_size|filesizeformat }}{% else %}File unavailable{% endif %}</span><span class="report-card-dot">&middot;</span><span>PDF</span></div>
+            <div class="report-card-actions"><a class="button button-primary button-small" href="{% url 'report_detail' report.id %}">View report <span aria-hidden="true">&rarr;</span></a>{% if report.conversation %}<a class="button button-outline button-small" href="{% url 'conversation' report.conversation.id %}">Chat</a>{% endif %}<form method="post" action="{% url 'delete_report' report.id %}" onsubmit="return confirm('Delete this report and its conversation?');">{% csrf_token %}<button class="icon-delete" type="submit" aria-label="Delete {{ report.name }}" title="Delete report">&times;</button></form></div>
+        </article>
+    {% empty %}
+        <div class="empty-state"><div class="empty-mark" aria-hidden="true">+</div><h3>No health reports yet</h3><p>Upload your first report to start using HealthLens AI.</p><a class="button button-outline" href="{% url 'home' %}#upload">Upload health report</a></div>
+    {% endfor %}
+    </div>
+</section>
+{% endblock %}

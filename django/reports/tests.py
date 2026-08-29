@@ -49,3 +49,50 @@ class ReportChatFlowTests(TestCase):
         conversation = Conversation.objects.get(user=self.user)
         self.client.force_login(self.other_user)
         self.assertEqual(self.client.get(reverse('conversation', args=[conversation.id])).status_code, 404)
+
+    def test_reports_page_shows_only_owned_reports(self):
+        report = Report.objects.create(
+            user=self.user,
+            name='My report',
+            file=SimpleUploadedFile('mine.pdf', b'%PDF-1.7 test', content_type='application/pdf'),
+        )
+        Report.objects.create(
+            user=self.other_user,
+            name='Private report',
+            file=SimpleUploadedFile('private.pdf', b'%PDF-1.7 test', content_type='application/pdf'),
+        )
+
+        response = self.client.get(reverse('reports_index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'My report')
+        self.assertNotContains(response, 'Private report')
+        report.file.delete(save=False)
+
+    def test_owner_can_delete_report_and_file(self):
+        report = Report.objects.create(
+            user=self.user,
+            name='Delete me',
+            file=SimpleUploadedFile('delete-me.pdf', b'%PDF-1.7 test', content_type='application/pdf'),
+        )
+        file_name = report.file.name
+
+        response = self.client.post(reverse('delete_report', args=[report.id]))
+
+        self.assertRedirects(response, reverse('reports_index'))
+        self.assertFalse(Report.objects.filter(id=report.id).exists())
+        self.assertFalse(report.file.storage.exists(file_name))
+
+    def test_other_user_cannot_delete_report(self):
+        report = Report.objects.create(
+            user=self.user,
+            name='Keep private',
+            file=SimpleUploadedFile('keep.pdf', b'%PDF-1.7 test', content_type='application/pdf'),
+        )
+        self.client.force_login(self.other_user)
+
+        response = self.client.post(reverse('delete_report', args=[report.id]))
+
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(Report.objects.filter(id=report.id).exists())
+        report.file.delete(save=False)

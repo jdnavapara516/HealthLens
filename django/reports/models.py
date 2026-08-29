@@ -20,5 +20,12 @@ class Report(models.Model):
         ordering = ('-created_at',)
         indexes = [models.Index(fields=('user', '-created_at'))]
 
+    @property
+    def file_size(self):
+        try:
+            return self.file.size
+        except (FileNotFoundError, OSError):
+            return 0
+
     def __str__(self):
         return self.name
