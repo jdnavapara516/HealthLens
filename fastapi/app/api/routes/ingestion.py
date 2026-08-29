@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from pypdf.errors import PdfStreamError
 from sqlalchemy.orm import Session
 
 from app.embeddings.service import EmbeddingService
@@ -39,7 +40,7 @@ def process_report(
         # 1. Extract text from PDF
         try:
             pages = extract_text_from_pdf(request.file_path)
-        except (FileNotFoundError, OSError, ValueError) as exc:
+        except (FileNotFoundError, OSError, ValueError, PdfStreamError) as exc:
             raise HTTPException(
                 status_code=400,
                 detail=f"Unable to read report PDF: {exc}",
