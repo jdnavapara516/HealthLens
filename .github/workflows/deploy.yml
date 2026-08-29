@@ -27,4 +27,4 @@ jobs:
             docker compose -f docker-compose.prod.yml run --rm django python manage.py migrate
             docker compose -f docker-compose.prod.yml up -d
             docker image prune -f
-            curl --fail --retry 10 --retry-delay 3 http://localhost:8000/health
+            curl --fail --retry 10 --retry-delay 3 http://localhost:8001/health
