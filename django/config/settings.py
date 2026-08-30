@@ -82,26 +82,14 @@ FASTAPI_URL = os.getenv('FASTAPI_URL', 'http://127.0.0.1:8000')
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-DATABASE_URL = os.getenv('DATABASE_URL')
-if DATABASE_URL and DATABASE_URL.startswith('postgres'):
-    database_url = DATABASE_URL.removeprefix('postgresql://').removeprefix('postgres://')
-    credentials, host_part = database_url.split('@', 1)
-    database_user, database_password = credentials.split(':', 1)
-    database_host, database_name = host_part.split('/', 1)
-    database_host, database_port = (database_host.split(':', 1) + ['5432'])[:2]
-    DATABASES = {'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': database_name,
-        'USER': database_user,
-        'PASSWORD': database_password,
-        'HOST': database_host,
-        'PORT': database_port,
-    }}
-else:
-    DATABASES = {'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }}
+import environ
+
+env = environ.Env()
+environ.Env.read_env()  # reads from .env
+
+DATABASES = {
+    'default': env.db('DATABASE_URL', default='postgresql://admin:admin@localhost:5432/healthlens')
+}
 
 
 
