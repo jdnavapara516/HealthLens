@@ -25,4 +25,4 @@ class EmbeddingService:
             model=self.model,
         )
 
-        return embedding.tolist()
+        return embedding.tolist() 
