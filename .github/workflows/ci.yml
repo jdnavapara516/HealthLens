@@ -8,6 +8,22 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: healthlens
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d healthlens"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,6 +40,7 @@ jobs:
         env:
           SECRET_KEY: ci-only-secret
           DEBUG: 'False'
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/healthlens
         run: |
           python manage.py check
           python manage.py test
@@ -38,6 +55,7 @@ jobs:
     needs: validate
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -52,7 +70,14 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           REGISTRY="${{ secrets.DOCKERHUB_USERNAME }}"
-          docker build -f Dockerfile.django -t "$REGISTRY/healthlens-django:$IMAGE_TAG" .
-          docker build -f Dockerfile.fastapi -t "$REGISTRY/healthlens-fastapi:$IMAGE_TAG" .
+
+          docker build \
+            -f Dockerfile.django \
+            -t "$REGISTRY/healthlens-django:$IMAGE_TAG" .
+
+          docker build \
+            -f Dockerfile.fastapi \
+            -t "$REGISTRY/healthlens-fastapi:$IMAGE_TAG" .
+
           docker push "$REGISTRY/healthlens-django:$IMAGE_TAG"
           docker push "$REGISTRY/healthlens-fastapi:$IMAGE_TAG"
