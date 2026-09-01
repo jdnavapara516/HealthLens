@@ -1,3 +1,4 @@
+
 name: Deploy
 
 on:
@@ -10,6 +11,7 @@ jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+
     steps:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.2
@@ -17,24 +19,80 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+
           script: |
             set -eu
+
             cd /home/${{ secrets.EC2_USERNAME }}/healthlens
+
             export IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
             export DOCKERHUB_USERNAME='${{ secrets.DOCKERHUB_USERNAME }}'
-            echo '${{ secrets.DOCKERHUB_TOKEN }}' | docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin
+
+            echo "===== Disk usage BEFORE cleanup ====="
+            df -h
+
+            echo "===== Docker disk usage BEFORE cleanup ====="
+            docker system df
+
+            echo "===== Cleaning Docker resources ====="
+
+            # Remove stopped containers
+            docker container prune -f
+
+            # Remove unused images
+            docker image prune -af
+
+            # Remove unused networks
+            docker network prune -f
+
+            # Remove unused volumes
+            docker volume prune -f
+
+            # Remove build cache
+            docker builder prune -af
+
+            echo "===== Disk usage AFTER cleanup ====="
+            df -h
+
+            echo "===== Docker disk usage AFTER cleanup ====="
+            docker system df
+
+            echo "===== Docker Login ====="
+            echo '${{ secrets.DOCKERHUB_TOKEN }}' | \
+              docker login \
+              -u '${{ secrets.DOCKERHUB_USERNAME }}' \
+              --password-stdin
+
+            echo "===== Pulling latest images ====="
             docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml run --rm django python manage.py migrate
+
+            echo "===== Running migrations ====="
+            docker compose -f docker-compose.prod.yml run --rm django \
+              python manage.py migrate
+
+            echo "===== Starting services ====="
             docker compose -f docker-compose.prod.yml up -d
+
+            echo "===== Final Docker cleanup ====="
             docker image prune -f
+
+            echo "===== Waiting for FastAPI health check ====="
+
             for attempt in $(seq 1 30); do
               if docker compose -f docker-compose.prod.yml exec -T fastapi \
                 python -c "from urllib.request import urlopen; urlopen('http://localhost:8000/health', timeout=5).read()" \
                 >/dev/null 2>&1; then
+
+                echo "FastAPI is healthy."
                 exit 0
               fi
+
+              echo "FastAPI not ready. Attempt $attempt/30"
               sleep 2
             done
 
+            echo "===== FastAPI failed health check ====="
             docker compose -f docker-compose.prod.yml logs --tail=100 fastapi django
+
             exit 1
+
